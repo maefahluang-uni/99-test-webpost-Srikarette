@@ -15,9 +15,15 @@ public class UserController {
     @Autowired
     UserRepository userRepository;
 
+    // TODO: end point for validate user by username
+    @GetMapping("/users/{username}")
+    public ResponseEntity<User> getUserByUsername(@PathVariable String username) {
+        User user = userRepository.findByUsername(username);
 
-    //TODO: end point for validate user by username 
-    public ResponseEntity<User> getUserByUsername(String username) {
-       return null;
+        if (user != null) {
+            return ResponseEntity.ok(user);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

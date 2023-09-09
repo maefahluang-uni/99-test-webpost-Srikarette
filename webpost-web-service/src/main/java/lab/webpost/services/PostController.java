@@ -3,6 +3,7 @@ package lab.webpost.services;
 import java.util.List;
 import java.util.Optional;
 
+import org.aspectj.lang.annotation.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,34 +24,59 @@ public class PostController {
     PostRepository postRepository;
 
     // TODO: get all Posts
+    @GetMapping("/posts")
     public ResponseEntity<List<Post>> getPosts() {
-        return null;
+        List<Post> posts = postRepository.findAll();
+        return new ResponseEntity<>(posts, HttpStatus.OK);
     }
 
-    //TODO: getting post by id
-    public ResponseEntity<Post> getPostById( Long id) {
-        // TODO: check if post is null
-        return null;
+    @GetMapping("/posts/{id}")
+    public ResponseEntity<Post> retrieveConcert(@PathVariable Long id) {
+        Optional<Post> postOptional = postRepository.findById(id);
+
+        if (postOptional.isPresent()) {
+            Post post = postOptional.get();
+            return new ResponseEntity<>(post, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
-    //TODO: find by title
-    public ResponseEntity<List<Post>> getPostByTitle( String title) {
-        return null;
+    @GetMapping("/post/title/{title}")
+    public ResponseEntity getPostByTitle(@PathVariable String title) {
+        List<Post> posts = postRepository.findByTitle(title);
+
+        if (posts.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Post not found");
+        }
+        return ResponseEntity.ok(posts);
     }
 
     // TODO: adding new post
-    public ResponseEntity<String> addPost( Post post) {
-        return null;
+    @PostMapping("/posts")
+    public ResponseEntity<String> createPost(@RequestBody Post post) {
+        postRepository.save(post);
+        return ResponseEntity.status(HttpStatus.CREATED).body("Post created success!");
     }
 
     // TODO: delete post by id
-    public ResponseEntity<String> deletePost( Long id) {
-        return null;
+    @DeleteMapping("/posts/{id}")
+    public ResponseEntity<String> deletePost(@PathVariable Long id) {
+        Optional<Post> posOptional = postRepository.findById(id);
+
+        if (posOptional.isPresent()) {
+            postRepository.deleteById(id);
+            return new ResponseEntity<>("Post deleted successfully", HttpStatus.NO_CONTENT);
+        } else {
+            return new ResponseEntity<>("Post not found", HttpStatus.NOT_FOUND);
+        }
     }
 
-    //TODO: delete all posts
+    // TODO: delete all posts
+    @DeleteMapping("/posts")
     public ResponseEntity<String> deleteAllPosts() {
-        return null;
+        postRepository.deleteAll();
+        return new ResponseEntity<>("All posts deleted successfully", HttpStatus.NO_CONTENT);
     }
 
 }
